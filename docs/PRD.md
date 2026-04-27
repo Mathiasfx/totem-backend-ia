@@ -31,6 +31,7 @@ API Node (Express) para un **tótem / experiencia física**: recibe una foto, la
 - Autenticación de clientes.
 - Colas, workers o persistencia en base de datos.
 - CDN u optimización avanzada de imágenes (más allá del pipeline actual de IA).
+- Soporte para múltiples marcos intercambiables en tiempo de ejecución (el marco es fijo en `src/assets/marco.png`).
 
 ## 6. Requisitos funcionales
 
@@ -38,6 +39,11 @@ API Node (Express) para un **tótem / experiencia física**: recibe una foto, la
 2. **RF-02** — Tras procesar, la imagen final es accesible vía **URL firmada** de GCS; `GET /d/{uuid}` (mismo `uuid` que en `outputs/{uuid}.jpg`) responde **302** a esa URL. **RF-2b** — Con `PUBLIC_BASE_URL` o `HOST_IP` definido, el QR apunta a la **URL corta** (`/d/...`); en caso contrario, el QR codifica la URL firmada.
 3. **RF-03** — La respuesta incluye `qrUrl` hacia un bitmap de QR (servicio externo) que en lo posible codifica el enlace corto.
 4. **RF-04** — `GET /health` indica que el proceso está vivo (y puede exponer metadatos no sensibles de configuración).
+5. **RF-05** — Tras el procesamiento de IA, la imagen resultante es **compuesta con el marco** (`src/assets/marco.png`) antes de ser subida a GCS:
+   - La foto IA se redimensiona al tamaño exacto del marco (`fit: cover`, centrado).
+   - El PNG del marco (con canal alpha para la zona de la foto) se superpone con `blend: over`.
+   - La imagen final se serializa como **JPEG calidad 90 (mozjpeg)** y es el único artefacto que llega a `outputs/`.
+   - El marco es cargado y **cacheado en memoria** al primer uso (`loadMarcoCache`); una llamada a `loadMarcoCache` al arranque del servidor permite detectar un marco faltante o inválido antes de recibir tráfico.
 
 ## 7. Requisitos no funcionales
 
@@ -53,6 +59,25 @@ API Node (Express) para un **tótem / experiencia física**: recibe una foto, la
 - Respuesta exitosa (ejemplo conceptual): `exito`, `fotoUrl`, `qrUrl`, `timestamp`.
 - `GET /d/:id` — redirección a la imagen en GCS (URL firmada).
 - `GET /health` — estado del servicio.
+
+### Pipeline de procesamiento interno
+
+```
+Upload (multipart)
+  └─ aiService        → buffer resultado IA
+       └─ frameService.composeWithMarco(buffer)
+             ├─ loadMarcoCache()   (lee src/assets/marco.png, cachea en memoria)
+             ├─ sharp(aiBuffer).resize(marcoW, marcoH, {fit:'cover', position:'centre'})
+             └─ sharp(base).composite([{input: marcoBuffer, blend:'over'}]).jpeg({quality:90, mozjpeg:true})
+  └─ storageService   → sube JPEG compuesto a GCS outputs/{uuid}.jpg
+```
+
+**Módulo:** `src/services/frameService.js`  
+**Funciones exportadas:**
+| Función | Descripción |
+|---|---|
+| `loadMarcoCache()` | Carga `marco.png` desde `src/assets/`, valida dimensiones y cachea el resultado. Lanza error si el archivo no existe o carece de dimensiones. |
+| `composeWithMarco(aiImageBuffer)` | Recibe el buffer JPEG/PNG del resultado de IA, aplica el pipeline de composición y devuelve un `Buffer` JPEG. |
 
 *(Ajustar campos exactos cuando el código sea la fuente de verdad; mantener este apartado sincronizado.)*
 
@@ -75,3 +100,4 @@ API Node (Express) para un **tótem / experiencia física**: recibe una foto, la
 | 22/04/2026 | Creación del documento |
 | 23/04/2026 | Almacenamiento en GCS, URLs firmadas, lifecycle documentado para `uploads/` |
 | 23/04/2026 | Sólo GCS (sin almacenamiento local); QR/redirect acortado vía `PUBLIC_BASE_URL` o `HOST_IP` |
+| 27/04/2026 | Documentado `frameService.js`: composición con marco PNG (alpha), caché en memoria, pipeline interno y RF-05 |

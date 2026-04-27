@@ -34,12 +34,7 @@ function stripTrailingSlash(s) {
     return s.replace(/\/+$/, '');
 }
 
-/**
- * Dónde escucha el móvil esta API (no es el bucket). /d/{id} redirige 302 a GCS.
- * - Producción: PUBLIC_BASE_URL (p. ej. https://api.tu-servicio.com)
- * - Local / LAN: HOST_IP=la IP de tu PC (p. ej. 192.168.1.x) + mismo Wi‑Fi que el teléfono
- * Sin ninguno, el QR codifica la URL firmada (muy larga).
- */
+
 function getShortDownloadBaseUrl() {
     const fromEnv = process.env.PUBLIC_BASE_URL?.trim();
     if (fromEnv) {
@@ -149,20 +144,8 @@ app.get('/health', (req, res) => {
     }
 
     app.listen(PORT, () => {
-        console.log(`🎭 Servidor del Tótem corriendo en http://localhost:${PORT}`);
-        console.log(` Almacenamiento: GCS bucket ${process.env.GCS_BUCKET_NAME}`);
-        if (getShortDownloadBaseUrl()) {
-            console.log(` Enlaces cortos y QR: ${getShortDownloadBaseUrl()}/d/{id} → GCS (URL firmada)`);
-        } else {
-            console.log(
-                ' Sin HOST_IP (LAN) ni PUBLIC_BASE_URL (internet), el QR usa la URL firmada de GCS (densa, difícil de leer).'
-            );
-            console.log(
-                '  Prueba en tu red: añadí HOST_IP=IP-de-este-PC (ipconfig) para que el QR apunte a http://ESE_IP:PUERTO/d/... y redirija al bucket.'
-            );
-        }
-        if (HOST_IP) {
-            console.log(`  El móvil debe alcanzar: http://${HOST_IP}:${PORT} (misma red que el tótem/PC).`);
-        }
+        console.log(` Servidor del Tótem corriendo en http://localhost:${PORT}`);
+     
+    
     });
 })();

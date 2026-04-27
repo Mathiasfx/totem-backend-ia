@@ -13,6 +13,7 @@
   "dependencies": {
     "@google-cloud/aiplatform": "^6.6.0",
     "@google-cloud/storage": "^7.17.3",
+    "@google-cloud/vertexai": "^1.12.0",
     "axios": "^1.15.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
