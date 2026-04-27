@@ -1,0 +1,18 @@
+---
+description: Contexto del producto totem-backend y enlace al PRD
+alwaysApply: true
+---
+
+# Totem Backend
+
+Antes de proponer features, rutas nuevas o cambios de contrato, lee **`docs/PRD.md`** y mantenlo alineado con el código.
+
+## Prioridades
+
+1. Flujo estable: `POST /upload` → IA → GCS `outputs/{uuid}.jpg` → JSON con `fotoUrl` (URL firmada) y `qrUrl` (enlace acortable vía `GET /d/{uuid}` cuando haya `PUBLIC_BASE_URL` o `HOST_IP`).
+2. Errores HTTP claros (400 sin archivo, 500 con mensaje útil en logs). Sin `GCS_BUCKET_NAME` el proceso no arranca.
+3. Configuración: `PORT`, `GCS_BUCKET_NAME`, `SIGNED_URL_TTL_SECONDS`, `PUBLIC_BASE_URL` o `HOST_IP` para URLs cortas.
+
+## Stack
+
+Node (CommonJS), Express 5, Multer, CORS, Google Cloud Storage (`src/services/storageService.js`), servicio de IA en `src/services/aiService.js`.
