@@ -105,7 +105,8 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
         await uploadBuffer(uploadObjectPath, req.file.buffer, req.file.mimetype || 'image/jpeg');
 
-        const rawOutputBuffer = await processImageWithNanoBanana(req.file.buffer);
+        const team = (req.body.seleccion || 'argentina').toLowerCase().trim();
+        const rawOutputBuffer = await processImageWithNanoBanana(req.file.buffer, team);
         const outputBuffer = await composeWithMarco(rawOutputBuffer);
         await uploadBuffer(outputObjectPath, outputBuffer, 'image/jpeg');
 

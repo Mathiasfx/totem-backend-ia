@@ -1,0 +1,30 @@
+{
+  "argentina": {
+    "nombre": "Argentina",
+    "jersey": "official Argentina national team jersey (light blue and white vertical stripes, EXACTLY three gold stars above the AFA crest — three stars, not two)"
+  },
+  "brasil": {
+    "nombre": "Brasil",
+    "jersey": "official Brazil national team jersey (canary yellow with green collar, CBF crest on chest, green shorts)"
+  },
+  "francia": {
+    "nombre": "Francia",
+    "jersey": "official France national team jersey (deep navy blue, FFF rooster crest on chest, white shorts)"
+  },
+  "alemania": {
+    "nombre": "Alemania",
+    "jersey": "official Germany national team jersey (white with black collar, DFB eagle crest on chest, black shorts)"
+  },
+  "españa": {
+    "nombre": "España",
+    "jersey": "official Spain national team jersey (red with yellow collar, RFEF crest on chest, dark navy shorts)"
+  },
+  "uruguay": {
+    "nombre": "Uruguay",
+    "jersey": "official Uruguay national team jersey (sky blue, AUF crest on chest, black shorts)"
+  },
+  "colombia": {
+    "nombre": "Colombia",
+    "jersey": "official Colombia national team jersey (bright yellow with red and dark blue side stripes, FCF crest on chest, dark navy shorts)"
+  }
+}

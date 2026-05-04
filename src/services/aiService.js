@@ -1,6 +1,9 @@
 const { GoogleGenAI } = require('@google/genai');
 
 const promptsMundiales = require('../assets/prompts.json');
+const teamsConfig = require('../assets/teams.json');
+
+const DEFAULT_TEAM = 'argentina';
 
 /**
  * Genera una imagen del Mundial usando Gemini con generación de imágenes.
@@ -8,17 +11,27 @@ const promptsMundiales = require('../assets/prompts.json');
  * preservando la identidad facial, sin arrastrar el fondo original.
  *
  * @param {Buffer} imageBuffer - foto de la persona (JPEG)
+ * @param {string} [team='argentina'] - clave de selección en teams.json
  * @returns {Promise<Buffer>} imagen generada
  */
-async function processImageWithNanoBanana(imageBuffer) {
+async function processImageWithNanoBanana(imageBuffer, team = DEFAULT_TEAM) {
     const ai = new GoogleGenAI({
         vertexai: true,
         project: process.env.GOOGLE_PROJECT_ID,
         location: 'us-central1'  // Gemini solo disponible en us-central1
     });
 
+    const teamKey = (team || DEFAULT_TEAM).toLowerCase().trim();
+    const teamData = teamsConfig[teamKey] || teamsConfig[DEFAULT_TEAM];
+
+    if (!teamsConfig[teamKey]) {
+        console.warn(`⚠️  Selección "${teamKey}" no encontrada en teams.json, usando "${DEFAULT_TEAM}".`);
+    }
+
     const selectedPrompt = promptsMundiales[Math.floor(Math.random() * promptsMundiales.length)];
-    console.log(`🎯 Acción seleccionada: ${selectedPrompt.accion}`);
+    const resolvedPrompt = selectedPrompt.prompt.replace(/\{\{jersey\}\}/g, teamData.jersey);
+
+    console.log(`🎯 Acción seleccionada: ${selectedPrompt.accion} | Selección: ${teamData.nombre}`);
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
@@ -31,7 +44,7 @@ async function processImageWithNanoBanana(imageBuffer) {
                         data: imageBuffer.toString('base64')
                     }
                 },
-                { text: selectedPrompt.prompt }
+                { text: resolvedPrompt }
             ]
         }],
         config: {
