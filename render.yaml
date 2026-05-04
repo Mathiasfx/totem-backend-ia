@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: totem-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: GCS_BUCKET_NAME
+        sync: false
+      - key: GOOGLE_PROJECT_ID
+        sync: false
+      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: SIGNED_URL_TTL_SECONDS
+        sync: false

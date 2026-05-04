@@ -1,8 +1,20 @@
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+require('dotenv').config();
+
+// Si existe GOOGLE_APPLICATION_CREDENTIALS_JSON (PaaS como Render),
+// escribimos el JSON en un archivo temporal y apuntamos la variable al path.
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    const tmpPath = path.join(os.tmpdir(), 'google-creds.json');
+    fs.writeFileSync(tmpPath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, 'utf8');
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = tmpPath;
+}
+
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const crypto = require('crypto');
-require('dotenv').config();
 
 const { processImageWithNanoBanana } = require('./services/aiService');
 const { composeWithMarco, loadMarcoCache } = require('./services/frameService');
